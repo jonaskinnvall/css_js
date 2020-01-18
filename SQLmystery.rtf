@@ -1,0 +1,94 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2511
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 HelveticaNeue;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;\red255\green255\blue255;\red56\green56\blue56;
+\red56\green56\blue56;}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0;\cssrgb\c100000\c100000\c100000\c0;\cssrgb\c28297\c28297\c28227;
+\cssrgb\c28297\c28297\c28227;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 SQL Murder Mystery\
+Steps to solve mystery. Query followed by explanation\
+\
+1. SELECT date FROM crime_scene_report\
+\
+To see how the dates are written in the table\
+\
+2. SELECT type, description \
+FROM crime_scene_report \
+WHERE date=\'9120180115\'92 AND city=\'91SQL City\'92 \
+\
+To get reports from correct city and date. Could have used \'93type\'94 as condition too since we now that it is a murder. Found one report of a murder with description: \'93
+\f1 \cf2 \cb3 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec4 Security footage shows that there were 2 witnesses. The first witness lives at the last house on "Northwestern Dr". The second witness, named Annabel, lives somewhere on "Franklin Ave\'94.\'94\
+\
+3. SELECT transcript \
+FROM interview \
+JOIN person ON interview.person_id = person.id \
+WHERE person.name LIKE'Annabel %' AND person.address_street_name='Franklin Ave\'92\
+\
+To get the person_id, \'9316371\'94, and transcript for the interview with the second witness, which said: \'93
+\f0 I saw the murder happen, and I recognized the killer from my gym when I was working out last week on January the 9th.\'94\
+\
+4. SELECT MAX(address_number) \
+FROM person \
+WHERE address_street_name='Northwestern Dr\'92 \
+\
+To find adress number for first witness, which was 4919.\
+\
+5. SELECT person_id, transcript \
+FROM interview \
+JOIN person ON interview.person_id = person.id \
+WHERE person.address_street_name='Northwestern Dr' AND person.address_number='4919\'92\
+\
+To get person_id, \'9314887\'94, and transcript for interview with the first witness, which said \'93I heard a gunshot and then saw a man run out. He had a "Get Fit Now Gym" bag. The membership number on the bag started with "48Z". Only gold members have those bags. The man got into a car with a plate that included "H42W".\
+\
+6. SELECT name, person_id\
+FROM get_fit_now_member\
+JOIN get_fit_now_check_in\
+ON get_fit_now_member.id = get_fit_now_check_in.membership_id\
+WHERE get_fit_now_check_in.membership_id LIKE'48Z%' \
+AND get_fit_now_check_in.check_in_date='20180109' AND get_fit_now_member.membership_status='gold'\
+\
+To get name and person_id for people with gold membership, a membership is starting with 48Z that were at the gym on the 9th of January, which resulted in two guys: Joe Germuska with id: 28819 and Jeremy Bowers with id: 67318\
+\
+7.SELECT name\
+FROM person\
+JOIN drivers_license\
+ON person.license_id = drivers_license.id\
+WHERE drivers_license.plate_number LIKE'%H42W%' \
+AND (person.id='28819' OR person.id='67318')\
+\
+To find the murderer by matching \outl0\strokewidth0 a license plate that includes H42W with\outl0\strokewidth0 \strokec4  one of the two suspects from step 6, resulting in Jeremy Bowers! \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf2 \outl0\strokewidth0 \
+BONUS STEPS\
+8. \outl0\strokewidth0 \strokec4 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf2 But there were apparently more to the mystery, so I queried the transcript from Bowers\'92 interview by, \outl0\strokewidth0 SELECT transcript\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf2 FROM interview\
+WHERE person_id='67318'\outl0\strokewidth0 \strokec4 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf2 \
+Resulting in \'93I was hired by a woman with a lot of money. I don't know her name but I know she's around 5'5" (65") or 5'7" (67"). She has red hair and she drives a Tesla Model S. I know that she attended the SQL Symphony Concert 3 times in December 2017.\'94\
+\
+9.\
+SELECT name, ssn\
+FROM person\
+JOIN drivers_license ON person.license_id = drivers_license.id\
+JOIN facebook_event_checkin ON person.id = facebook_event_checkin.person_id\
+WHERE drivers_license.gender='female' \
+AND drivers_license.hair_color='red' \
+AND drivers_license.car_make='Tesla'\
+AND drivers_license.car_model='Model S'\
+AND drivers_license.height BETWEEN '65' AND '67'\
+AND facebook_event_checkin.event_name='SQL Symphony Concert'\
+AND facebook_event_checkin.date LIKE '201712%'\
+\
+To get the woman who ordered the murder by joining the person table to both drivers_license table by license_id and facebook_event_checkin by id and looking for a female that\'92s between 65\'94 and 67\'94 with red hair, driving a Tesla Model S and went and saw the SQL Symphony Concert three times in December of 2017.\
+\
+Resulting in three counts of Miranda Priestly, which were the correct person :) \
+\
+\
+}
